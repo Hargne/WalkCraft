@@ -1,0 +1,12 @@
+## Interface: 11502
+## Title: WalkCraft
+## SavedVariablesPerCharacter: TotalDistanceTravelled
+## SavedVariablesPerCharacter: ShowHUD
+## SavedVariablesPerCharacter: ShowTrackSession
+## SavedVariables: WalkCraftDB
+embeds.xml
+libs\LibDBIcon-1.0\lib.xml
+
+utils.lua
+settings.lua
+main.lua
