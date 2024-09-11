@@ -7,6 +7,8 @@
 embeds.xml
 libs\LibDBIcon-1.0\lib.xml
 
+config.lua
 utils.lua
-settings.lua
+settings_window.lua
+session_window.lua
 main.lua

@@ -1,9 +1,5 @@
 local name, addon = ...;
 
-Settings = {
-    mainFont = "Fonts\\FRIZQT__.TTF"
-}
-
 local padding = 24
 
 local frame = CreateFrame("FRAME", "WalkCraftSettingsFrame", UIParent);
@@ -21,26 +17,40 @@ frame.texture:SetTexture("Interface/BUTTONS/WHITE8X8")
 frame.texture:SetColorTexture(0, 0, 0, 0.75)
 frame:Hide()
 
-local title = Utils.createLabel(frame, "WalkCraft", 24, "TOPLEFT", padding, -padding)
+local title = addon.createLabel(frame, "WalkCraft", 24, "TOPLEFT", padding, -padding)
 
-local showTrackSessionCheckbox = Utils.createCheckbox(frame, padding, -padding - 24 - padding,
+local showTrackSessionCheckbox = addon.createCheckbox(frame, padding, -padding - 24 - padding,
     "Show current session tracker");
 showTrackSessionCheckbox.tooltip = "Toggle visibility of the section where you can start/stop and track sessions.";
 showTrackSessionCheckbox:SetScript("OnClick", function()
     if showTrackSessionCheckbox:GetChecked() then
-        addon.showSessionFrame();
+        addon.showSessionWindow();
     else
-        addon.hideSessionFrame();
+        addon.hideSessionWindow();
     end
 end);
 
-local resetTotalDistanceButton = Utils.createButton(frame, "Reset total distance", 150, 22, "BOTTOMLEFT", padding,
+StaticPopupDialogs["CONFIRM_RESET_TOTAL_DISTANCE"] = {
+    text = "Are you sure that you want to reset your all time distance?",
+    button1 = "Yes",
+    button2 = "No",
+    OnAccept = function()
+        addon.setTotalDistanceTravelled(0)
+    end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = true,
+    preferredIndex = 3
+}
+
+local resetTotalDistanceButton = addon.createButton(frame, "Reset total distance", 150, 22, "BOTTOMLEFT", padding,
     padding)
 resetTotalDistanceButton:SetScript("OnClick", function()
-    addon.setTotalDistanceTravelled(0)
+    StaticPopup_Show("CONFIRM_RESET_TOTAL_DISTANCE")
 end)
 
-local versionLabel = Utils.createLabel(frame, "WalkCraft v0.0.1", 10, "BOTTOMRIGHT", -padding, padding)
+local versionLabel = addon.createLabel(frame, "WalkCraft v" .. addon.config.version, 10, "BOTTOMRIGHT", -padding,
+    padding)
 
 addon.openSettings = function()
     if ShowTrackSession == nil or ShowTrackSession == true then
@@ -48,11 +58,12 @@ addon.openSettings = function()
     end
     frame:Show();
 end
+
 addon.closeSettings = function()
     frame:Hide();
 end
 
-local closeSettingsButton = Utils.createButton(frame, "Close", 80, 22, "TOPRIGHT", -padding, -padding)
+local closeSettingsButton = addon.createCloseButton(frame, "TOPRIGHT", 0, 0)
 closeSettingsButton:SetScript("OnClick", function()
     addon.closeSettings();
 end)

@@ -1,118 +1,121 @@
-local name, addon = ...;
+local addonName, addon = ...;
 
-local HUD = CreateFrame("Frame", "HUDFrame", UIParent)
-HUD:SetSize(300, 75)
-HUD:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
-HUD:SetFrameStrata("MEDIUM")
-HUD:SetMovable(true)
-HUD:EnableMouse(true)
-HUD:RegisterForDrag("LeftButton")
-HUD:SetScript("OnDragStart", HUD.StartMoving)
-HUD:SetScript("OnDragStop", HUD.StopMovingOrSizing)
-if ShowHUD == false then
-    HUD:Hide()
+local padding = 8
+local current = {
+    speed = 0
+}
+local total = {
+    distance = TotalDistanceTravelled or 0
+}
+local heading = {
+    size = 8,
+    color = {
+        1,
+        1,
+        0
+    }
+}
+local valueLabel = {
+    size = 12,
+    color = {
+        1,
+        1,
+        1
+    }
+}
+
+-- HUD FRAME
+local HUDFrame = CreateFrame("Frame", "HUDFrame", UIParent)
+HUDFrame:SetSize(300, 75)
+HUDFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+HUDFrame:SetFrameStrata("MEDIUM")
+HUDFrame:SetMovable(true)
+HUDFrame:EnableMouse(true)
+HUDFrame:RegisterForDrag("LeftButton")
+HUDFrame:SetScript("OnDragStart", HUDFrame.StartMoving)
+HUDFrame:SetScript("OnDragStop", HUDFrame.StopMovingOrSizing)
+HUDFrame:RegisterEvent("ADDON_LOADED")
+
+addon.toggleHUD = function()
+    if HUDFrame:IsVisible() then
+        ShowHUD = false
+        HUDFrame:Hide()
+    else
+        ShowHUD = true
+        HUDFrame:Show()
+    end
 end
 
+--
 -- MAIN DATA
-local _speed = 0
-local mainDataFrameWidth = 100
-local mainDataFrameHeight = 30
+--
+local mainDataFrame = CreateFrame("Frame", "MainDataFrame", HUDFrame)
+mainDataFrame:SetSize(HUDFrame:GetWidth(), HUDFrame:GetHeight() / 2)
+mainDataFrame:SetPoint("TOPLEFT")
+mainDataFrame.texture = mainDataFrame:CreateTexture()
+mainDataFrame.texture:SetAllPoints(mainDataFrame)
+mainDataFrame.texture:SetTexture("Interface/BUTTONS/WHITE8X8")
+mainDataFrame.texture:SetColorTexture(0, 0, 0, 0)
 
-local mainDataFrame = CreateFrame("Frame", "MainDataFrame", HUD)
-mainDataFrame:SetSize(mainDataFrameWidth, mainDataFrameHeight)
-mainDataFrame:SetPoint("TOP")
+local mainDataEntryWidth = mainDataFrame:GetWidth() / 3
 
-local currentSpeedFrame = CreateFrame("Frame", "CurrentSpeedFrame", mainDataFrame)
-currentSpeedFrame:SetSize(mainDataFrameWidth / 2, mainDataFrameHeight)
-currentSpeedFrame:SetPoint("TOPLEFT")
-local currentSpeedHeading = Utils.createLabel(currentSpeedFrame, "Speed", 10, "TOPLEFT", 0, 0)
-local currentSpeedValue = Utils.createLabel(currentSpeedFrame, "", 12, "TOPLEFT", 0, -12)
-currentSpeedValue:SetTextColor(1, 1, 1)
-
-local function updateCurrentSpeed(speed)
-    _speed = speed
-    local formattedSpeed = Utils.ingameSpeedToMinutesPerKilometers(speed)
-    currentSpeedValue:SetText(string.format("%s", formattedSpeed))
-end
-
+-- Total Distance
 local totalDistanceFrame = CreateFrame("Frame", "TotalDistanceFrame", mainDataFrame)
-totalDistanceFrame:SetSize(mainDataFrameWidth / 2, mainDataFrameHeight)
-totalDistanceFrame:SetPoint("TOPRIGHT")
-local totalDistanceHeading = Utils.createLabel(totalDistanceFrame, "Distance", 10, "TOPLEFT", 80, 0)
-local totalDistanceValue = Utils.createLabel(totalDistanceFrame, "", 12, "TOPLEFT", 80, -12)
-totalDistanceValue:SetTextColor(1, 1, 1)
+totalDistanceFrame:SetSize(mainDataEntryWidth, mainDataFrame:GetHeight())
+totalDistanceFrame:SetPoint("TOPLEFT", mainDataFrame, "TOPLEFT", padding, -padding)
+local totalDistanceHeading = addon.createLabel(totalDistanceFrame, "Distance", heading.size, "TOPLEFT", 0, 0)
+totalDistanceHeading:SetTextColor(heading.color[1], heading.color[2], heading.color[3])
+local totalDistanceValue = addon.createLabel(totalDistanceFrame, "", valueLabel.size, "TOPLEFT", 0, -valueLabel.size)
+totalDistanceValue:SetTextColor(valueLabel.color[1], valueLabel.color[2], valueLabel.color[3])
 
-local function setTotalDistanceTravelled(distanceInYards)
-    TotalDistanceTravelled = distanceInYards or 0
-    totalDistanceValue:SetText(string.format("%.2f km", addon.Utils.convertYardsToKilometres(distanceInYards)))
-end
-addon.setTotalDistanceTravelled = setTotalDistanceTravelled
-
--- SESSION DATA
-local distanceTravelledThisSession = 0
-
-local sessionDataFrame = CreateFrame("Frame", "SessionDataFrame", HUD)
-sessionDataFrame:SetSize(300, 25)
-sessionDataFrame:SetPoint("BOTTOM")
-
-local startSessionButton = Utils.createButton(sessionDataFrame, "Start", 80, 22, "TOP", 0, 0)
-startSessionButton:SetScript("OnClick", function()
-    print("hej")
-end)
-
-addon.showSessionFrame = function()
-    ShowTrackSession = true;
-    sessionDataFrame:Show()
-end
-addon.hideSessionFrame = function()
-    ShowTrackSession = false;
-    sessionDataFrame:Hide()
+local setTotalDistance = function(distanceInYards)
+    total.distance = distanceInYards or 0
+    TotalDistanceTravelled = distanceInYards
+    totalDistanceValue:SetText(string.format("%.2f km", addon.convertYardsToKilometres(distanceInYards)))
 end
 
-HUD:RegisterEvent("ADDON_LOADED")
-HUD:SetScript("OnEvent", function(self, event, arg1)
+local addToTotalDistance = function(distanceInYards)
+    setTotalDistance(total.distance + distanceInYards)
+end
+
+-- Current Speed
+local currentSpeedFrame = CreateFrame("Frame", "CurrentSpeedFrame", mainDataFrame)
+currentSpeedFrame:SetSize(mainDataEntryWidth, mainDataFrame:GetHeight())
+currentSpeedFrame:SetPoint("TOPLEFT", mainDataFrame, "TOPLEFT", padding + mainDataEntryWidth + padding, -padding)
+local currentSpeedHeading = addon.createLabel(currentSpeedFrame, "Speed", heading.size, "TOPLEFT", 0, 0)
+currentSpeedHeading:SetTextColor(heading.color[1], heading.color[2], heading.color[3])
+local currentSpeedValue = addon.createLabel(currentSpeedFrame, "", valueLabel.size, "TOPLEFT", 0, -valueLabel.size)
+currentSpeedValue:SetTextColor(valueLabel.color[1], valueLabel.color[2], valueLabel.color[3])
+
+local function setCurrentSpeed(inputSpeed)
+    current.speed = inputSpeed
+    currentSpeedValue:SetText(string.format("%s", addon.ingameSpeedToMinutesPerKilometers(inputSpeed)))
+end
+
+HUDFrame:SetScript("OnEvent", function(self, event, arg1)
     -- On startup
-    if event == "ADDON_LOADED" and arg1 == "WalkCraft" then
+    if event == "ADDON_LOADED" and arg1 == addonName then
         if ShowHUD == false then
-            HUD:Hide()
+            mainDataFrame:Hide()
         end
-        if ShowTrackSession == false then
-            sessionDataFrame:Hide()
-        end
-        updateCurrentSpeed(0)
-        setTotalDistanceTravelled(TotalDistanceTravelled or 0)
-        -- setDistanceTravelledThisSession(0)
+        setCurrentSpeed(0)
+        setTotalDistance(TotalDistanceTravelled or 0)
     end
 end)
 
-HUD:SetScript("OnUpdate", function(self, elapsed)
+HUDFrame:SetScript("OnUpdate", function(self, elapsed)
     -- Dont need to run anything if we are standing still
     local speed = GetUnitSpeed("player")
     if speed <= 0 then
         -- Make sure to reset the current speed once
-        if _speed > 0 then
-            updateCurrentSpeed(0)
+        if current.speed > 0 then
+            setCurrentSpeed(0)
         end
         return
     end
-
-    if TotalDistanceTravelled == nil then
-        TotalDistanceTravelled = 0
-    end
-    updateCurrentSpeed(speed)
-    setTotalDistanceTravelled(TotalDistanceTravelled + speed * elapsed)
-    -- setDistanceTravelledThisSession(distanceTravelledThisSession + speed * elapsed)
+    setCurrentSpeed(speed)
+    addToTotalDistance(speed * elapsed)
 end)
-
-local function toggleHUD()
-    if HUD:IsVisible() then
-        ShowHUD = false
-        HUD:Hide()
-    else
-        ShowHUD = true
-        HUD:Show()
-    end
-end
 
 -- MINIMAP ICON
 local iconAddon = LibStub("AceAddon-3.0"):NewAddon("WalkCraft")
@@ -122,7 +125,7 @@ local walkCraftLDB = LibStub("LibDataBroker-1.1"):NewDataObject("WalkCraft", {
     icon = "Interface\\Icons\\ability_rogue_sprint",
     OnClick = function(self, button)
         if button == "LeftButton" then
-            toggleHUD()
+            addon.toggleHUD()
         elseif button == "RightButton" then
             addon.openSettings()
         end
