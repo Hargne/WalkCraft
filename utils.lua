@@ -13,7 +13,7 @@ end
 addon.ingameSpeedToMinutesPerKilometers = function(speed)
     local minutes = 0
     local seconds = 0
-    if speed > 0 then
+    if speed ~= nil and speed > 0 then
         local kmPerHour = speed * 3600 * yardToKm
         local kmPerMinute = kmPerHour / 60
         local minPerKm = 1 / kmPerMinute
@@ -54,13 +54,25 @@ addon.createCheckbox = function(parent, x_loc, y_loc, displayname)
     return checkbox;
 end
 
-addon.dataLabelWidth = 75
+addon.dataLabelWidth = 128
+addon.dataLabelHeight = 42
 addon.createDataLabel = function(parent, heading, value, position, x, y)
     local dataFrame = CreateFrame("Frame", heading .. "DataFrame", parent)
-    dataFrame:SetSize(75, 35)
+    dataFrame:SetSize(addon.dataLabelWidth, 32)
     dataFrame:SetPoint(position, parent, position, x, y)
-    local headingLabel = addon.createLabel(dataFrame, heading, 8, "TOPLEFT", 0, 0)
-    local valueLabel = addon.createLabel(dataFrame, value, 12, "TOPLEFT", 0, -12)
+    dataFrame.texture = dataFrame:CreateTexture()
+    dataFrame.texture:SetAllPoints(dataFrame)
+    dataFrame.texture:SetTexture("Interface/PaperDollInfoFrame/UI-CHARACTER-INACTIVETAB")
+
+    local headerFrame = CreateFrame("Frame", heading .. "HeadingFrame", dataFrame)
+    headerFrame:SetSize(addon.dataLabelWidth * 1.7, 36)
+    headerFrame:SetPoint("TOP", dataFrame, "TOP", 0, 17)
+    headerFrame.texture = headerFrame:CreateTexture()
+    headerFrame.texture:SetAllPoints(headerFrame)
+    headerFrame.texture:SetTexture("Interface/DialogFrame/UI-DialogBox-Header")
+    local headingLabel = addon.createLabel(headerFrame, heading, 9, "CENTER", 0, 6)
+
+    local valueLabel = addon.createLabel(dataFrame, value, 12, "CENTER", 0, 4)
     valueLabel:SetTextColor(1, 1, 1)
 
     return {
@@ -69,3 +81,4 @@ addon.createDataLabel = function(parent, heading, value, position, x, y)
         valueLabel
     }
 end
+

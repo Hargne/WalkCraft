@@ -2,7 +2,7 @@
 ## Title: WalkCraft
 ## SavedVariablesPerCharacter: TotalDistanceTravelled
 ## SavedVariablesPerCharacter: ShowHUD
-## SavedVariablesPerCharacter: ShowTrackSession
+## SavedVariablesPerCharacter: MainDataDirection
 ## SavedVariables: WalkCraftDB
 embeds.xml
 libs\LibDBIcon-1.0\lib.xml

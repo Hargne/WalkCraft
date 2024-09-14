@@ -7,26 +7,11 @@ local current = {
 local total = {
     distance = TotalDistanceTravelled or 0
 }
-local heading = {
-    size = 8,
-    color = {
-        1,
-        1,
-        0
-    }
-}
-local valueLabel = {
-    size = 12,
-    color = {
-        1,
-        1,
-        1
-    }
-}
+addon.sessions = {}
 
 -- HUD FRAME
 local HUDFrame = CreateFrame("Frame", "HUDFrame", UIParent)
-HUDFrame:SetSize(300, 75)
+HUDFrame:SetSize(300, 35)
 HUDFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 HUDFrame:SetFrameStrata("MEDIUM")
 HUDFrame:SetMovable(true)
@@ -46,9 +31,6 @@ addon.toggleHUD = function()
     end
 end
 
---
--- MAIN DATA
---
 local mainDataFrame = CreateFrame("Frame", "MainDataFrame", HUDFrame)
 mainDataFrame:SetSize(HUDFrame:GetWidth(), HUDFrame:GetHeight() / 2)
 mainDataFrame:SetPoint("TOPLEFT")
@@ -60,18 +42,12 @@ mainDataFrame.texture:SetColorTexture(0, 0, 0, 0)
 local mainDataEntryWidth = mainDataFrame:GetWidth() / 3
 
 -- Total Distance
-local totalDistanceFrame = CreateFrame("Frame", "TotalDistanceFrame", mainDataFrame)
-totalDistanceFrame:SetSize(mainDataEntryWidth, mainDataFrame:GetHeight())
-totalDistanceFrame:SetPoint("TOPLEFT", mainDataFrame, "TOPLEFT", padding, -padding)
-local totalDistanceHeading = addon.createLabel(totalDistanceFrame, "Distance", heading.size, "TOPLEFT", 0, 0)
-totalDistanceHeading:SetTextColor(heading.color[1], heading.color[2], heading.color[3])
-local totalDistanceValue = addon.createLabel(totalDistanceFrame, "", valueLabel.size, "TOPLEFT", 0, -valueLabel.size)
-totalDistanceValue:SetTextColor(valueLabel.color[1], valueLabel.color[2], valueLabel.color[3])
+local totalDistanceLabel = addon.createDataLabel(mainDataFrame, "Distance", " ", "TOPLEFT", 0, 0)
 
 local setTotalDistance = function(distanceInYards)
     total.distance = distanceInYards or 0
     TotalDistanceTravelled = distanceInYards
-    totalDistanceValue:SetText(string.format("%.2f km", addon.convertYardsToKilometres(distanceInYards)))
+    totalDistanceLabel[3]:SetText(string.format("%.2f km", addon.convertYardsToKilometres(distanceInYards)))
 end
 
 local addToTotalDistance = function(distanceInYards)
@@ -79,17 +55,49 @@ local addToTotalDistance = function(distanceInYards)
 end
 
 -- Current Speed
-local currentSpeedFrame = CreateFrame("Frame", "CurrentSpeedFrame", mainDataFrame)
-currentSpeedFrame:SetSize(mainDataEntryWidth, mainDataFrame:GetHeight())
-currentSpeedFrame:SetPoint("TOPLEFT", mainDataFrame, "TOPLEFT", padding + mainDataEntryWidth + padding, -padding)
-local currentSpeedHeading = addon.createLabel(currentSpeedFrame, "Speed", heading.size, "TOPLEFT", 0, 0)
-currentSpeedHeading:SetTextColor(heading.color[1], heading.color[2], heading.color[3])
-local currentSpeedValue = addon.createLabel(currentSpeedFrame, "", valueLabel.size, "TOPLEFT", 0, -valueLabel.size)
-currentSpeedValue:SetTextColor(valueLabel.color[1], valueLabel.color[2], valueLabel.color[3])
+local currentSpeedLabel = addon.createDataLabel(mainDataFrame, "Speed", " ", "TOPLEFT", 0, 0)
 
 local function setCurrentSpeed(inputSpeed)
     current.speed = inputSpeed
-    currentSpeedValue:SetText(string.format("%s", addon.ingameSpeedToMinutesPerKilometers(inputSpeed)))
+    currentSpeedLabel[3]:SetText(string.format("%s", addon.ingameSpeedToMinutesPerKilometers(inputSpeed)))
+end
+
+local newSessionButton = CreateFrame("Button", "NewSessionButton", mainDataFrame)
+newSessionButton:SetPushedTexture("Interface/TimeManager/ResetButton")
+newSessionButton:SetHighlightTexture("Interface/TimeManager/ResetButton")
+newSessionButton:SetNormalTexture("Interface/TimeManager/ResetButton")
+newSessionButton:SetScript("OnEnter", function(self)
+    GameTooltip:SetOwner(self);
+    GameTooltip:ClearLines();
+    GameTooltip:SetText("Start new session")
+    GameTooltip:Show()
+end)
+newSessionButton:SetScript("OnLeave", function()
+    GameTooltip:Hide()
+end)
+newSessionButton:SetScript("OnClick", function()
+    addon.newSession()
+end)
+addon.newSessionButton = newSessionButton
+
+-- Content
+local allFrames = {
+    totalDistanceLabel[1],
+    currentSpeedLabel[1],
+    newSessionButton
+}
+
+addon.updateMainDataAlignment = function()
+    for k, v in pairs(allFrames) do
+        local x = 0
+        local y = 0
+        if MainDataDirection == nil or MainDataDirection == "HORIZONTAL" then
+            x = (k - 1) * (addon.dataLabelWidth - padding)
+        else
+            y = (k - 1) * ((addon.dataLabelHeight + padding) * -1)
+        end
+        v:SetPoint("TOPLEFT", mainDataFrame, "TOPLEFT", x, y)
+    end
 end
 
 HUDFrame:SetScript("OnEvent", function(self, event, arg1)
@@ -100,6 +108,8 @@ HUDFrame:SetScript("OnEvent", function(self, event, arg1)
         end
         setCurrentSpeed(0)
         setTotalDistance(TotalDistanceTravelled or 0)
+
+        addon.updateMainDataAlignment()
     end
 end)
 

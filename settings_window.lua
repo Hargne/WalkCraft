@@ -3,7 +3,7 @@ local name, addon = ...;
 local padding = 24
 
 local frame = CreateFrame("FRAME", "WalkCraftSettingsFrame", UIParent);
-frame:SetSize(300 + padding, 150 + padding)
+frame:SetSize(300 + padding, 400 + padding)
 frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 frame:SetFrameStrata("HIGH")
 frame:SetMovable(true)
@@ -19,16 +19,43 @@ frame:Hide()
 
 local title = addon.createLabel(frame, "WalkCraft", 24, "TOPLEFT", padding, -padding)
 
-local showTrackSessionCheckbox = addon.createCheckbox(frame, padding, -padding - 24 - padding,
-    "Show current session tracker");
-showTrackSessionCheckbox.tooltip = "Toggle visibility of the section where you can start/stop and track sessions.";
-showTrackSessionCheckbox:SetScript("OnClick", function()
-    if showTrackSessionCheckbox:GetChecked() then
-        addon.showSessionWindow();
-    else
-        addon.hideSessionWindow();
+-- Main data alignment dropdown
+
+local mainDataAlignmentY = 24
+
+local mainDataAligmentDropDownLabel = addon.createLabel(frame, "Data Alignment", 10, "TOPLEFT", padding,
+    -padding - mainDataAlignmentY - padding)
+
+local mainDataAligmentDropDown = CreateFrame("Frame", "MainDataAlignmentDropdown", frame, "UIDropDownMenuTemplate")
+mainDataAligmentDropDown:SetPoint("TOPLEFT", frame, "TOPLEFT", padding / 2,
+    -padding - (mainDataAlignmentY + 14) - padding)
+
+local function updateMainDataAligmentDropDownLabel()
+    if MainDataDirection == nil or MainDataDirection == "HORIZONTAL" then
+        UIDropDownMenu_SetText(mainDataAligmentDropDown, "Horizontal")
+    elseif MainDataDirection == "VERTICAL" then
+        UIDropDownMenu_SetText(mainDataAligmentDropDown, "Vertical")
     end
-end);
+end
+
+UIDropDownMenu_SetWidth(mainDataAligmentDropDown, 120)
+UIDropDownMenu_Initialize(mainDataAligmentDropDown, function(frame, level, menuList)
+    local info = UIDropDownMenu_CreateInfo()
+    info.func = function(self, arg1, arg2, checked)
+        if arg1 == 1 then
+            MainDataDirection = "HORIZONTAL"
+        elseif arg1 == 2 then
+            MainDataDirection = "VERTICAL"
+        end
+        addon.updateMainDataAlignment()
+        updateMainDataAligmentDropDownLabel()
+    end
+    info.text, info.arg1, info.checked = "Horizontal", 1, MainDataDirection == "HORIZONTAL" or MainDataDirection == nil
+    UIDropDownMenu_AddButton(info)
+    info.text, info.arg1, info.checked = "Vertical", 2, MainDataDirection == "VERTICAL"
+    UIDropDownMenu_AddButton(info)
+    updateMainDataAligmentDropDownLabel()
+end)
 
 StaticPopupDialogs["CONFIRM_RESET_TOTAL_DISTANCE"] = {
     text = "Are you sure that you want to reset your all time distance?",
@@ -53,9 +80,6 @@ local versionLabel = addon.createLabel(frame, "WalkCraft v" .. addon.config.vers
     padding)
 
 addon.openSettings = function()
-    if ShowTrackSession == nil or ShowTrackSession == true then
-        showTrackSessionCheckbox:SetChecked(ShowTrackSession or true);
-    end
     frame:Show();
 end
 
