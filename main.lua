@@ -128,10 +128,10 @@ HUDFrame:SetScript("OnUpdate", function(self, elapsed)
 end)
 
 -- MINIMAP ICON
-local iconAddon = LibStub("AceAddon-3.0"):NewAddon("WalkCraft")
-local walkCraftLDB = LibStub("LibDataBroker-1.1"):NewDataObject("WalkCraft", {
+local iconAddon = LibStub("AceAddon-3.0"):NewAddon("WarPath")
+local warpathLDB = LibStub("LibDataBroker-1.1"):NewDataObject("WarPath", {
     type = "data source",
-    text = "WalkCraft",
+    text = "WarPath",
     icon = "Interface\\Icons\\ability_rogue_sprint",
     OnClick = function(self, button)
         if button == "LeftButton" then
@@ -141,7 +141,7 @@ local walkCraftLDB = LibStub("LibDataBroker-1.1"):NewDataObject("WalkCraft", {
         end
     end,
     OnTooltipShow = function(tooltip)
-        tooltip:SetText("WalkCraft")
+        tooltip:SetText("WarPath")
         tooltip:AddLine("Left-click to toggle", 1, 1, 1)
         tooltip:AddLine("Right-click to open settings", 1, 1, 1)
     end
@@ -149,12 +149,12 @@ local walkCraftLDB = LibStub("LibDataBroker-1.1"):NewDataObject("WalkCraft", {
 local icon = LibStub("LibDBIcon-1.0")
 
 function iconAddon:OnInitialize()
-    self.db = LibStub("AceDB-3.0"):New("WalkCraftDB", {
+    self.db = LibStub("AceDB-3.0"):New("WarPathDB", {
         profile = {
             minimap = {
                 hide = false
             }
         }
     })
-    icon:Register("WalkCraft", walkCraftLDB, self.db.profile.minimap)
+    icon:Register("WarPath", warpathLDB, self.db.profile.minimap)
 end

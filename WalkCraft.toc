@@ -1,9 +1,9 @@
 ## Interface: 11502
-## Title: WalkCraft
+## Title: WarPath
 ## SavedVariablesPerCharacter: TotalDistanceTravelled
 ## SavedVariablesPerCharacter: ShowHUD
 ## SavedVariablesPerCharacter: MainDataDirection
-## SavedVariables: WalkCraftDB
+## SavedVariables: WarPathDB
 embeds.xml
 libs\LibDBIcon-1.0\lib.xml
 

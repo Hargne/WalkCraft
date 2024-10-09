@@ -2,7 +2,7 @@ local name, addon = ...;
 
 local padding = 24
 
-local frame = CreateFrame("FRAME", "WalkCraftSettingsFrame", UIParent);
+local frame = CreateFrame("FRAME", "WarPathSettingsFrame", UIParent);
 frame:SetSize(300 + padding, 400 + padding)
 frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 frame:SetFrameStrata("HIGH")
@@ -17,7 +17,7 @@ frame.texture:SetTexture("Interface/BUTTONS/WHITE8X8")
 frame.texture:SetColorTexture(0, 0, 0, 0.75)
 frame:Hide()
 
-local title = addon.createLabel(frame, "WalkCraft", 24, "TOPLEFT", padding, -padding)
+local title = addon.createLabel(frame, "WarPath", 24, "TOPLEFT", padding, -padding)
 
 -- Main data alignment dropdown
 
@@ -76,8 +76,7 @@ resetTotalDistanceButton:SetScript("OnClick", function()
     StaticPopup_Show("CONFIRM_RESET_TOTAL_DISTANCE")
 end)
 
-local versionLabel = addon.createLabel(frame, "WalkCraft v" .. addon.config.version, 10, "BOTTOMRIGHT", -padding,
-    padding)
+local versionLabel = addon.createLabel(frame, "WarPath v" .. addon.config.version, 10, "BOTTOMRIGHT", -padding, padding)
 
 addon.openSettings = function()
     frame:Show();
