@@ -72,7 +72,7 @@ addon.createDataLabel = function(parent, heading, value, position, x, y)
     headerFrame.texture:SetTexture("Interface/DialogFrame/UI-DialogBox-Header")
     local headingLabel = addon.createLabel(headerFrame, heading, 9, "CENTER", 0, 6)
 
-    local valueLabel = addon.createLabel(dataFrame, value, 12, "CENTER", 0, 4)
+    local valueLabel = addon.createLabel(dataFrame, value, 12, "CENTER", 0, 3)
     valueLabel:SetTextColor(1, 1, 1)
 
     return {
