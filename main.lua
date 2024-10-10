@@ -11,7 +11,7 @@ addon.sessions = {}
 
 -- HUD FRAME
 local HUDFrame = CreateFrame("Frame", "HUDFrame", UIParent)
-HUDFrame:SetSize(300, 35)
+HUDFrame:SetSize(300, 42)
 HUDFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 HUDFrame:SetFrameStrata("MEDIUM")
 HUDFrame:SetMovable(true)
@@ -92,7 +92,7 @@ addon.updateMainDataAlignment = function()
         local x = 0
         local y = 0
         if MainDataDirection == nil or MainDataDirection == "HORIZONTAL" then
-            x = (k - 1) * (addon.dataLabelWidth - padding)
+            x = (k - 1) * (addon.dataLabelWidth - padding) - padding
         else
             y = (k - 1) * ((addon.dataLabelHeight + padding) * -1)
         end

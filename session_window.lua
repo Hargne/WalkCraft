@@ -23,13 +23,15 @@ frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
 frame:RegisterEvent("ADDON_LOADED")
 addon.sessionWindow = frame
 
-addon.showSessionWindow = function()
+local showSessionWindow = function()
     frame:Show()
 end
+addon.showSessionWindow = showSessionWindow
 
-addon.hideSessionWindow = function()
+local hideSessionWindow = function()
     frame:Hide()
 end
+addon.hideSessionWindow = hideSessionWindow
 
 local distanceLabel = addon.createDataLabel(frame, "Distance", " ", "TOPLEFT", 0, -padding)
 local averageSpeed = addon.createDataLabel(frame, "Avg Speed", " ", "TOPLEFT", 0, -padding - (padding + 36) * 1)
@@ -74,7 +76,7 @@ local updateAverageSpeed = function()
                                                                         (time() - currentSession.startTime)))
 end
 
-addon.newSession = function()
+local newSession = function()
     if currentSession == nil then
         currentSession = {
             startTime = time(),
@@ -92,8 +94,9 @@ addon.newSession = function()
         addon.newSessionButton:Hide()
     end
 end
+addon.newSession = newSession
 
-addon.pauseSession = function()
+local pauseSession = function()
     if currentSession == nil then
         return
     end
@@ -102,7 +105,7 @@ addon.pauseSession = function()
     endSessionButton:Show()
 end
 
-addon.resumeSession = function()
+local resumeSession = function()
     if currentSession == nil then
         return
     end
@@ -111,7 +114,7 @@ addon.resumeSession = function()
     endSessionButton:Hide()
 end
 
-addon.endSession = function()
+local endSession = function()
     if currentSession == nil then
         return
     end
@@ -129,14 +132,14 @@ resumePauseSessionButton:SetScript("OnClick", function()
         return
     end
     if currentSession.active then
-        addon.pauseSession()
+        pauseSession()
     else
-        addon.resumeSession()
+        resumeSession()
     end
 end)
 
 endSessionButton:SetScript("OnClick", function()
-    addon.endSession()
+    endSession()
 end)
 
 frame:SetScript("OnEvent", function(self, event, arg1)

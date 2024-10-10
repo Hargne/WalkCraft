@@ -57,16 +57,20 @@ end
 addon.dataLabelWidth = 128
 addon.dataLabelHeight = 42
 addon.createDataLabel = function(parent, heading, value, position, x, y)
-    local dataFrame = CreateFrame("Frame", heading .. "DataFrame", parent)
+    local frame = CreateFrame("Frame", heading .. "Frame", parent)
+    frame:SetSize(addon.dataLabelWidth, addon.dataLabelHeight)
+    frame:SetPoint(position, parent, position, x, y)
+
+    local dataFrame = CreateFrame("Frame", heading .. "DataFrame", frame)
     dataFrame:SetSize(addon.dataLabelWidth, 32)
-    dataFrame:SetPoint(position, parent, position, x, y)
+    dataFrame:SetPoint("TOP", frame, "TOP", 0, -17)
     dataFrame.texture = dataFrame:CreateTexture()
     dataFrame.texture:SetAllPoints(dataFrame)
     dataFrame.texture:SetTexture("Interface/PaperDollInfoFrame/UI-CHARACTER-INACTIVETAB")
 
-    local headerFrame = CreateFrame("Frame", heading .. "HeadingFrame", dataFrame)
+    local headerFrame = CreateFrame("Frame", heading .. "HeadingFrame", frame)
     headerFrame:SetSize(addon.dataLabelWidth * 1.7, 36)
-    headerFrame:SetPoint("TOP", dataFrame, "TOP", 0, 17)
+    headerFrame:SetPoint("TOP", frame, "TOP", 0, 0)
     headerFrame.texture = headerFrame:CreateTexture()
     headerFrame.texture:SetAllPoints(headerFrame)
     headerFrame.texture:SetTexture("Interface/DialogFrame/UI-DialogBox-Header")
@@ -76,7 +80,7 @@ addon.createDataLabel = function(parent, heading, value, position, x, y)
     valueLabel:SetTextColor(1, 1, 1)
 
     return {
-        dataFrame,
+        frame,
         headingLabel,
         valueLabel
     }
